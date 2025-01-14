@@ -1,0 +1,19 @@
+[package]
+name = "xtc-ebpf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+xtc-common = { path = "../xtc-common" }
+
+network-types = "0.0.7"
+aya-ebpf = { workspace = true }
+aya-log-ebpf = { workspace = true }
+
+[build-dependencies]
+which = { workspace = true }
+aya-tool = { git = "https://github.com/aya-rs/aya", branch = "main" }
+
+[[bin]]
+name = "xtc"
+path = "src/main.rs"

@@ -1,0 +1,1 @@
+RUST_LOG=info cargo run --release --config 'target."cfg(all())".runner="sudo -E"' -- -i enp1s0 --windows=7183
