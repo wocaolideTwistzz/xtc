@@ -14,9 +14,11 @@ struct Opt {
     #[arg(short, long, default_value = "eth0")]
     iface: String,
 
+    /// Process IDs to fingerprint as Windows (use 0 to fingerprint all processes)
     #[arg(long)]
     windows: Vec<u32>,
 
+    /// Process IDs to fingerprint as macOS (use 0 to fingerprint all processes)
     #[arg(long)]
     macos: Vec<u32>,
 }

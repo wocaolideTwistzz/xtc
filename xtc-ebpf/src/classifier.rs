@@ -7,7 +7,7 @@ use aya_ebpf::{
 };
 use xtc_common::{FINGERPRINT_MACOS, FINGERPRINT_WINDOWS};
 
-use crate::{addr_port_key, SRC_ADDR_PORT_FINGERPRINT};
+use crate::{addr_port_key, PROCESS_FINGERPRINT, SRC_ADDR_PORT_FINGERPRINT};
 
 #[classifier]
 pub fn xtc(ctx: TcContext) -> i32 {
@@ -20,6 +20,7 @@ const ETH_HEADER_LEN: usize = 14;
 const IPV4_HEADER_LEN: usize = 20;
 const TCP_HEADER_LEN: usize = 20;
 const FLAG_SYN: u16 = 0b0000_0000_0000_0010_u16.to_be();
+const PROCESS_ALL: u32 = 0;
 
 #[inline(always)]
 unsafe fn try_xtc(ctx: TcContext) -> Result<i32, c_long> {
@@ -41,7 +42,10 @@ unsafe fn try_xtc(ctx: TcContext) -> Result<i32, c_long> {
 
     let addr = ctx.load::<u32>(ETH_HEADER_LEN + 12)?;
     let port = ctx.load::<u16>(ETH_HEADER_LEN + IPV4_HEADER_LEN)?.to_be();
-    if let Some(fingerprint) = SRC_ADDR_PORT_FINGERPRINT.get_ptr(&addr_port_key(addr, port)) {
+    if let Some(fingerprint) = SRC_ADDR_PORT_FINGERPRINT
+        .get_ptr(&addr_port_key(addr, port))
+        .or_else(|| PROCESS_FINGERPRINT.get_ptr(&PROCESS_ALL))
+    {
         match *fingerprint {
             FINGERPRINT_WINDOWS => rewrite_windows_tcp_syn(ctx)?,
             FINGERPRINT_MACOS => rewrite_macos_tcp_syn(ctx)?,
